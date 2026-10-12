@@ -14,10 +14,10 @@ use dbus::{
 };
 
 use crate::{
+    Error, Item, LockAction, SecretService,
     proxy::collection::Collection as ProxyCollection,
     proxy::new_proxy,
     ss::{SS_ITEM_ATTRIBUTES, SS_ITEM_LABEL},
-    Error, Item, LockAction, SecretService,
 };
 
 /// Represents a Secret Service collection of items.
