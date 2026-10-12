@@ -13,7 +13,7 @@ use std::{error, fmt};
 pub enum Error {
     /// An error occurred decrypting a response message.
     /// The type of the error will depend on which crypto is being used.
-    Crypto(Box<dyn (error::Error) + Send + Sync>),
+    Crypto(Box<dyn error::Error + Send + Sync>),
     /// A bad path was handed to the secret service.
     Path(String),
     /// The response value of a secret service call couldn't be parsed.

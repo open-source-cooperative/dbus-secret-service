@@ -198,7 +198,7 @@ impl SecretService {
     ///
     /// If this service instance needs to prompt a user for permission to
     /// access a locked item or collection, it will block indefinitely waiting for
-    /// the user's response  See [connect_with_timeout] if you want
+    /// the user's response.  See [`connect_with_max_prompt_timeout`](SecretService::connect_with_max_prompt_timeout) if you want
     /// different behavior.
     pub fn connect(encryption: EncryptionType) -> Result<Self, Error> {
         let connection = Connection::new_session()?;
