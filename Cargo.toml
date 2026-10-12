@@ -8,8 +8,8 @@ keywords = ["secret-service", "password", "linux", "dbus"]
 license = "MIT OR Apache-2.0"
 name = "dbus-secret-service"
 version = "4.1.0"
-edition = "2021"
-rust-version = "1.78"   # required for Cargo.lock v4
+edition = "2024"
+rust-version = "1.85"   # matches keyring-core, allows edition 2024
 exclude = [".github/"]
 
 [features]

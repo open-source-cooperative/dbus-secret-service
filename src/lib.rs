@@ -385,9 +385,11 @@ mod test {
     fn should_create_and_delete_collection() {
         let ss = SecretService::connect(EncryptionType::Plain).unwrap();
         let test_collection = ss.create_collection("TestCreateDelete", "").unwrap();
-        assert!(test_collection
-            .path
-            .starts_with("/org/freedesktop/secrets/collection/Test"));
+        assert!(
+            test_collection
+                .path
+                .starts_with("/org/freedesktop/secrets/collection/Test")
+        );
         test_collection.delete().unwrap();
     }
 
