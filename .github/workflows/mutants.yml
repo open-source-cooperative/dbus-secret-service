@@ -1,0 +1,39 @@
+name: Mutants
+
+on:
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref == 'refs/heads/main' && github.run_id || github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+permissions:
+  contents: read
+
+jobs:
+  cargo-mutants:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install test dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libdbus-1-dev libssl-dev
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions-rust-lang/setup-rust-toolchain@166cdcfd11aee3cb47222f9ddb555ce30ddb9659 # v1.17.0
+        with:
+          toolchain: stable
+      - uses: taiki-e/install-action@83ac0ad63c0167e6f06796fab0fce28db1bf3db0 # v2.87.22
+        with:
+          tool: cargo-mutants
+      - name: Install gnome-keyring
+        run: sudo apt-get install -y gnome-keyring
+      - name: Start gnome-keyring
+        # run gnome-keyring with 'foobar' as password for the login keyring
+        # this will create a new login keyring and unlock it
+        # the login password doesn't matter, but the keyring must be unlocked for the tests to work
+        run: gnome-keyring-daemon --components=secrets --daemonize --unlock <<< 'foobar'
+      - run: git diff "origin/${GITHUB_BASE_REF}"...HEAD > pr.diff
+      - run: cargo mutants --in-diff pr.diff --no-default-features --features crypto-rust
