@@ -13,11 +13,19 @@ jobs:
     name: CI
     uses: $/.github/workflows/ci.yaml
 
+  semver:
+    name: Semver
+    uses: $/.github/workflows/semver.yml
+
+  docs:
+    name: Docs
+    uses: $/.github/workflows/docs.yml
+
   publish:
     name: Publish
     runs-on: ubuntu-latest
     environment: release
-    needs: ci
+    needs: [ci, semver, docs]
     permissions:
       contents: read
       id-token: write
