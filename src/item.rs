@@ -26,10 +26,12 @@ use crate::{
 /// cannot outlive that instance.
 pub struct Item<'a> {
     service: &'a SecretService,
+    /// The DBus object path of this item.
     pub path: Path<'static>,
 }
 
 impl<'a> Item<'a> {
+    /// Create an item from a [`SecretService`] and a DBus path.
     pub fn new(service: &'a SecretService, path: Path<'static>) -> Item<'a> {
         Item { service, path }
     }
@@ -38,10 +40,12 @@ impl<'a> Item<'a> {
         new_proxy(&self.service.connection, &self.path)
     }
 
+    /// Report whether the item is locked.
     pub fn is_locked(&self) -> Result<bool, Error> {
         Ok(self.proxy().locked()?)
     }
 
+    /// Unlock the item if it is locked.
     pub fn ensure_unlocked(&self) -> Result<(), Error> {
         if self.is_locked()? {
             self.unlock()
@@ -50,20 +54,24 @@ impl<'a> Item<'a> {
         }
     }
 
+    /// Unlock the item.
     pub fn unlock(&self) -> Result<(), Error> {
         let paths = vec![self.path.clone()];
         self.service.lock_unlock_all(LockAction::Unlock, paths)
     }
 
+    /// Lock the item.
     pub fn lock(&self) -> Result<(), Error> {
         let paths = vec![self.path.clone()];
         self.service.lock_unlock_all(LockAction::Lock, paths)
     }
 
+    /// Get the item's attributes.
     pub fn get_attributes(&self) -> Result<HashMap<String, String>, Error> {
         Ok(self.proxy().attributes()?)
     }
 
+    /// Set the item's attributes.
     pub fn set_attributes(&self, attributes: HashMap<&str, &str>) -> Result<(), Error> {
         let attributes = attributes
             .into_iter()
@@ -72,10 +80,12 @@ impl<'a> Item<'a> {
         Ok(self.proxy().set_attributes(attributes)?)
     }
 
+    /// Get the item's label.
     pub fn get_label(&self) -> Result<String, Error> {
         Ok(self.proxy().label()?)
     }
 
+    /// Set the item's label.
     pub fn set_label(&self, new_label: &str) -> Result<(), Error> {
         Ok(self.proxy().set_label(new_label.to_string())?)
     }
@@ -90,6 +100,7 @@ impl<'a> Item<'a> {
         }
     }
 
+    /// Get the item's secret.
     pub fn get_secret(&self) -> Result<Vec<u8>, Error> {
         let tuple = self.proxy().get_secret(self.service.session.path.clone())?;
         let encrypted = EncryptedSecret::from_dbus(tuple);
@@ -97,6 +108,7 @@ impl<'a> Item<'a> {
         Ok(decrypted)
     }
 
+    /// Get the content type of the item's secret.
     pub fn get_secret_content_type(&self) -> Result<String, Error> {
         let tuple = self.proxy().get_secret(self.service.session.path.clone())?;
         let encrypted = EncryptedSecret::from_dbus(tuple);
@@ -105,15 +117,18 @@ impl<'a> Item<'a> {
         Ok(mime)
     }
 
+    /// Set the item's secret and content type.
     pub fn set_secret(&self, secret: &[u8], content_type: &str) -> Result<(), Error> {
         let encrypted = self.service.session.encrypt_secret(secret, content_type);
         Ok(self.proxy().set_secret(encrypted.to_dbus())?)
     }
 
+    /// Get the time the item was created, in seconds since the Unix epoch.
     pub fn get_created(&self) -> Result<u64, Error> {
         Ok(self.proxy().created()?)
     }
 
+    /// Get the time the item was last modified, in seconds since the Unix epoch.
     pub fn get_modified(&self) -> Result<u64, Error> {
         Ok(self.proxy().modified()?)
     }
