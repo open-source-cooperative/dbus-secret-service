@@ -36,4 +36,4 @@ jobs:
       - name: Build docs
         run: cargo doc --no-deps --features crypto-rust
         env:
-          RUSTDOCFLAGS: -D warnings
+          RUSTDOCFLAGS: -D warnings -D missing_docs
