@@ -15,7 +15,7 @@ use dbus;
 use dbus::arg;
 use dbus::blocking;
 
-pub trait Collection {
+pub(crate) trait Collection {
     fn delete(&self) -> Result<dbus::Path<'static>, dbus::Error>;
     fn search_items(
         &self,
@@ -36,7 +36,7 @@ pub trait Collection {
 }
 
 #[derive(Debug)]
-pub struct CollectionItemCreated {
+struct CollectionItemCreated {
     pub item: dbus::Path<'static>,
 }
 
@@ -58,7 +58,7 @@ impl dbus::message::SignalArgs for CollectionItemCreated {
 }
 
 #[derive(Debug)]
-pub struct CollectionItemDeleted {
+struct CollectionItemDeleted {
     pub item: dbus::Path<'static>,
 }
 
@@ -80,7 +80,7 @@ impl dbus::message::SignalArgs for CollectionItemDeleted {
 }
 
 #[derive(Debug)]
-pub struct CollectionItemChanged {
+struct CollectionItemChanged {
     pub item: dbus::Path<'static>,
 }
 

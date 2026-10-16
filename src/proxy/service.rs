@@ -15,7 +15,7 @@ use dbus;
 use dbus::arg;
 use dbus::blocking;
 
-pub trait Service {
+pub(crate) trait Service {
     fn open_session(
         &self,
         algorithm: &str,
@@ -64,7 +64,7 @@ pub trait Service {
 }
 
 #[derive(Debug)]
-pub struct ServiceCollectionCreated {
+struct ServiceCollectionCreated {
     pub collection: dbus::Path<'static>,
 }
 
@@ -88,7 +88,7 @@ impl dbus::message::SignalArgs for ServiceCollectionCreated {
 }
 
 #[derive(Debug)]
-pub struct ServiceCollectionDeleted {
+struct ServiceCollectionDeleted {
     pub collection: dbus::Path<'static>,
 }
 
@@ -112,7 +112,7 @@ impl dbus::message::SignalArgs for ServiceCollectionDeleted {
 }
 
 #[derive(Debug)]
-pub struct ServiceCollectionChanged {
+struct ServiceCollectionChanged {
     pub collection: dbus::Path<'static>,
 }
 

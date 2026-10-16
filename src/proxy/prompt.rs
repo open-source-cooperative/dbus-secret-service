@@ -15,13 +15,13 @@ use dbus;
 use dbus::arg;
 use dbus::blocking;
 
-pub trait Prompt {
+pub(crate) trait Prompt {
     fn prompt(&self, window_id: &str) -> Result<(), dbus::Error>;
     fn dismiss(&self) -> Result<(), dbus::Error>;
 }
 
 #[derive(Debug)]
-pub struct PromptCompleted {
+pub(crate) struct PromptCompleted {
     pub dismissed: bool,
     pub result: arg::Variant<Box<dyn arg::RefArg + 'static>>,
 }

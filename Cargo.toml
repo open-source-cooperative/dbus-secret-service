@@ -30,6 +30,9 @@ openssl = { version = "0.10.55", optional = true }
 sha2 = { version = "0.10", optional = true }
 zeroize = { version = "1.8", features = ["derive"] }
 
+[lints.rust]
+unreachable_pub = "warn"
+
 [package.metadata.docs.rs]
 features = ["crypto-rust"]
 targets = ["x86_64-unknown-linux-gnu"]
