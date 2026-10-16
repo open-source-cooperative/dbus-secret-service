@@ -4,6 +4,7 @@
 [![dependencies](https://deps.rs/repo/github/brotskydotcom/dbus-secret-service/status.svg)](https://deps.rs/repo/github/brotskydotcom/dbus-secret-service)
 [![crates.io](https://img.shields.io/crates/v/dbus-secret-service.svg?style=flat-square)](https://crates.io/crates/dbus-secret-service)
 [![docs.rs](https://docs.rs/dbus-secret-service/badge.svg)](https://docs.rs/dbus-secret-service)
+[![codecov](https://codecov.io/gh/open-source-cooperative/dbus-secret-service/graph/badge.svg)](https://codecov.io/gh/open-source-cooperative/dbus-secret-service)
 
 This crate started as a knock-off of the [secret-service](https://crates.io/crates/secret-service) crate, which uses [zbus](https://crates.io/crates/zbus) to access the secret service. The basic collection, item and search APIs in this crate are meant to work the same as the blocking APIs in the zbus-based crate. If they don't, please file a bug.
 
