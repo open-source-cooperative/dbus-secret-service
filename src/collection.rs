@@ -26,10 +26,12 @@ use crate::{
 /// [`SecretService`] instance and cannot outlive it.
 pub struct Collection<'a> {
     service: &'a SecretService,
+    /// The DBus object path of this collection.
     pub path: Path<'static>,
 }
 
 impl<'a> Collection<'a> {
+    /// Create a collection from a [`SecretService`] and a DBus path.
     pub fn new(service: &'a SecretService, path: Path<'static>) -> Collection<'a> {
         Collection { service, path }
     }
@@ -38,10 +40,12 @@ impl<'a> Collection<'a> {
         new_proxy(&self.service.connection, &self.path)
     }
 
+    /// Report whether the collection is locked.
     pub fn is_locked(&self) -> Result<bool, Error> {
         Ok(self.proxy().locked()?)
     }
 
+    /// Unlock the collection if it is locked.
     pub fn ensure_unlocked(&self) -> Result<(), Error> {
         if self.is_locked()? {
             self.unlock()
@@ -50,11 +54,13 @@ impl<'a> Collection<'a> {
         }
     }
 
+    /// Unlock the collection.
     pub fn unlock(&self) -> Result<(), Error> {
         let paths = vec![self.path.clone()];
         self.service.lock_unlock_all(LockAction::Unlock, paths)
     }
 
+    /// Lock the collection.
     pub fn lock(&self) -> Result<(), Error> {
         let paths = vec![self.path.clone()];
         self.service.lock_unlock_all(LockAction::Lock, paths)
@@ -70,6 +76,7 @@ impl<'a> Collection<'a> {
         }
     }
 
+    /// Get all the items in the collection.
     pub fn get_all_items(&self) -> Result<Vec<Item<'_>>, Error> {
         let paths = self.proxy().items()?;
         let result = paths
@@ -79,6 +86,7 @@ impl<'a> Collection<'a> {
         Ok(result)
     }
 
+    /// Search the items in the collection by attributes.
     pub fn search_items(&self, attributes: HashMap<&str, &str>) -> Result<Vec<Item<'_>>, Error> {
         let paths = self.proxy().search_items(attributes)?;
         let result = paths
@@ -88,14 +96,17 @@ impl<'a> Collection<'a> {
         Ok(result)
     }
 
+    /// Get the collection's label.
     pub fn get_label(&self) -> Result<String, Error> {
         Ok(self.proxy().label()?)
     }
 
+    /// Set the collection's label.
     pub fn set_label(&self, new_label: &str) -> Result<(), Error> {
         Ok(self.proxy().set_label(new_label.to_string())?)
     }
 
+    /// Create a new item in the collection.
     pub fn create_item(
         &self,
         label: &str,
