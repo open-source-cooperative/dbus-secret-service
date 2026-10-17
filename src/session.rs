@@ -15,9 +15,9 @@
 //      This encoding uses the aes_key from the associated Session.
 
 use dbus::{
+    Path,
     arg::{RefArg, Variant},
     blocking::{Connection, Proxy},
-    Path,
 };
 use zeroize::ZeroizeOnDrop;
 
@@ -73,7 +73,7 @@ impl EncryptedSecret {
 }
 
 #[derive(ZeroizeOnDrop)]
-pub struct Session {
+pub(crate) struct Session {
     #[zeroize(skip)]
     pub(crate) path: Path<'static>,
     #[zeroize(skip)]
@@ -99,7 +99,10 @@ impl std::fmt::Debug for Session {
 }
 
 impl Session {
-    pub fn new(p: Proxy<'_, &'_ Connection>, encryption: EncryptionType) -> Result<Session, Error> {
+    pub(crate) fn new(
+        p: Proxy<'_, &'_ Connection>,
+        encryption: EncryptionType,
+    ) -> Result<Session, Error> {
         use crate::proxy::service::Service;
         match encryption {
             EncryptionType::Plain => {
@@ -145,7 +148,7 @@ impl Session {
         }
     }
 
-    pub fn is_encrypted(&self) -> bool {
+    fn is_encrypted(&self) -> bool {
         match self.encryption {
             EncryptionType::Plain => false,
             #[cfg(any(feature = "crypto-rust", feature = "crypto-openssl"))]
@@ -193,10 +196,10 @@ mod crypto {
 
     use fastrand::Rng;
     use num::{
+        FromPrimitive,
         bigint::BigUint,
         integer::Integer,
         traits::{One, Zero},
-        FromPrimitive,
     };
     use once_cell::sync::Lazy;
 

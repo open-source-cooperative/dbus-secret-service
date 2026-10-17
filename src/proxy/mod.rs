@@ -5,14 +5,33 @@
 // http://opensource.org/licenses/MIT>, at your option. This file may not be
 // copied, modified, or distributed except according to those terms.
 
-pub mod collection;
-pub mod item;
-pub mod prompt;
-pub mod service;
+#[expect(
+    clippy::single_component_path_imports,
+    reason = "dbus-codegen emits `use dbus;`"
+)]
+pub(crate) mod collection;
+#[expect(
+    clippy::single_component_path_imports,
+    reason = "dbus-codegen emits `use dbus;`"
+)]
+pub(crate) mod item;
+#[expect(
+    clippy::single_component_path_imports,
+    reason = "dbus-codegen emits `use dbus;`"
+)]
+pub(crate) mod prompt;
+#[expect(
+    clippy::single_component_path_imports,
+    reason = "dbus-codegen emits `use dbus;`"
+)]
+pub(crate) mod service;
 
 use dbus::blocking::{Connection, Proxy};
 use std::time::Duration;
 
-pub fn new_proxy<'a, 'b>(connection: &'b Connection, path: &'a str) -> Proxy<'a, &'b Connection> {
+pub(crate) fn new_proxy<'a, 'b>(
+    connection: &'b Connection,
+    path: &'a str,
+) -> Proxy<'a, &'b Connection> {
     connection.with_proxy(crate::ss::SS_DBUS_DEST, path, Duration::from_millis(2000))
 }

@@ -15,7 +15,7 @@ use dbus;
 use dbus::arg;
 use dbus::blocking;
 
-pub trait Item {
+pub(crate) trait Item {
     fn delete(&self) -> Result<dbus::Path<'static>, dbus::Error>;
     fn get_secret(
         &self,

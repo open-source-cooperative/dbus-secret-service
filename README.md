@@ -11,6 +11,8 @@ Why do a knock-off? So that folks who write synchronous Rust apps that access th
 
 ## Usage
 
+Requires Rust `1.85` or later and uses edition `2024`.
+
 For code usage examples, see the [documentation](https://docs.rs/dbus-secret-service) and the [example program](https://github.com/open-source-cooperative/dbus-secret-service/blob/main/examples/example.rs).
 
 This crate has no default features, and requires no features to run. If you want your secrets to be encrypted on their
