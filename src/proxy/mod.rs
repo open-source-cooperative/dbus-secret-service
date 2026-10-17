@@ -5,14 +5,25 @@
 // http://opensource.org/licenses/MIT>, at your option. This file may not be
 // copied, modified, or distributed except according to those terms.
 
-// The generated modules start with `use dbus;`. A reason or `expect` would need Rust 1.81.
-#[allow(clippy::single_component_path_imports)]
+#[expect(
+    clippy::single_component_path_imports,
+    reason = "dbus-codegen emits `use dbus;`"
+)]
 pub(crate) mod collection;
-#[allow(clippy::single_component_path_imports)]
+#[expect(
+    clippy::single_component_path_imports,
+    reason = "dbus-codegen emits `use dbus;`"
+)]
 pub(crate) mod item;
-#[allow(clippy::single_component_path_imports)]
+#[expect(
+    clippy::single_component_path_imports,
+    reason = "dbus-codegen emits `use dbus;`"
+)]
 pub(crate) mod prompt;
-#[allow(clippy::single_component_path_imports)]
+#[expect(
+    clippy::single_component_path_imports,
+    reason = "dbus-codegen emits `use dbus;`"
+)]
 pub(crate) mod service;
 
 use dbus::blocking::{Connection, Proxy};
