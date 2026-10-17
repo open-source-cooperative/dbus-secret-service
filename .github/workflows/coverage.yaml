@@ -1,0 +1,76 @@
+name: Coverage
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref == 'refs/heads/main' && github.run_id || github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+permissions:
+  contents: read
+
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: install required packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libdbus-1-dev libssl-dev
+
+      - name: Fetch head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install rust stable
+        uses: actions-rust-lang/setup-rust-toolchain@ecabd13d1c56bd1345c230e542e9144811ad706f # v2.0.0
+        with:
+          toolchain: stable
+          components: llvm-tools-preview
+
+      - name: Install cargo-llvm-cov
+        uses: taiki-e/install-action@f7e5d7c961414b23f5b25b2da9294395d08513ad # v2.87.26
+        with:
+          tool: cargo-llvm-cov
+
+      - name: Install gnome-keyring
+        run: sudo apt-get install -y gnome-keyring
+
+      - name: Start gnome-keyring
+        # unlock a fresh login keyring so the Secret Service tests have a daemon to connect to
+        run: gnome-keyring-daemon --components=secrets --daemonize --unlock <<< 'foobar'
+
+      - name: Test with no features
+        run: cargo llvm-cov --no-report --no-default-features
+
+      - name: Test with vendored
+        run: cargo llvm-cov --no-report --no-default-features --features=vendored
+
+      - name: Test with crypto-rust
+        run: cargo llvm-cov --no-report --no-default-features --features=crypto-rust
+
+      - name: Test with crypto-openssl
+        run: cargo llvm-cov --no-report --no-default-features --features=crypto-openssl
+
+      - name: Test with crypto-rust and vendored
+        run: cargo llvm-cov --no-report --no-default-features --features=crypto-rust,vendored
+
+      - name: Test with crypto-openssl and vendored
+        run: cargo llvm-cov --no-report --no-default-features --features=crypto-openssl,vendored
+
+      - name: Write the coverage report
+        run: cargo llvm-cov report --lcov --output-path lcov.info
+
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
+        with:
+          files: lcov.info
+          disable_search: true
+          fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}
