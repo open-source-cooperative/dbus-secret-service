@@ -15,9 +15,9 @@
 //      This encoding uses the aes_key from the associated Session.
 
 use dbus::{
+    Path,
     arg::{RefArg, Variant},
     blocking::{Connection, Proxy},
-    Path,
 };
 use zeroize::ZeroizeOnDrop;
 
@@ -193,10 +193,10 @@ mod crypto {
 
     use fastrand::Rng;
     use num::{
+        FromPrimitive,
         bigint::BigUint,
         integer::Integer,
         traits::{One, Zero},
-        FromPrimitive,
     };
     use once_cell::sync::Lazy;
 

@@ -5,11 +5,11 @@
 // http://opensource.org/licenses/MIT>, at your option. This file may not be
 // copied, modified, or distributed except according to those terms.
 
-use std::sync::mpsc::{channel, Receiver, Sender, TryRecvError};
+use std::sync::mpsc::{Receiver, Sender, TryRecvError, channel};
 use std::time::Duration;
 
 use dbus::arg::RefArg;
-use dbus::{arg::cast, blocking::Connection, strings::Path, Message};
+use dbus::{Message, arg::cast, blocking::Connection, strings::Path};
 
 use crate::proxy::prompt::{Prompt, PromptCompleted};
 use crate::{Error, SecretService};

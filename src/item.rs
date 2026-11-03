@@ -13,10 +13,10 @@ use dbus::{
 };
 
 use crate::{
+    LockAction, SecretService,
     error::Error,
     proxy::{item::Item as ProxyItem, new_proxy},
     session::EncryptedSecret,
-    LockAction, SecretService,
 };
 
 /// Represents a Secret Service item that has key/value attributes and a secret.
