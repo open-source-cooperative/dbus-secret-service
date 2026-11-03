@@ -184,7 +184,9 @@ pub struct SecretService {
 /// prompting the user interactively for permission.  This
 /// prompting is done by the Secret Service itself.)
 pub struct SearchItemsResult<T> {
+    /// The unlocked items returned by the search.
     pub unlocked: Vec<T>,
+    /// The locked items returned by the search.
     pub locked: Vec<T>,
 }
 
