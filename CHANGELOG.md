@@ -1,3 +1,10 @@
+## v4.2.0
+- add connection timeouts (thanks @Brooooooklyn)
+- fix badges in README to reflect new repository location.
+- update edition to 2024 and MSRV to 1.85
+- update compatible dependencies to latest 1.85 versions.
+- add lots of good workflows for cleanliness checking (thanks @LucaCappelletti94)
+
 ## v4.1.0
 - expose dbus::Path fields on Items and Collections
 - allow creation of Items and Collections from a remembered path
