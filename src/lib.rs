@@ -145,6 +145,7 @@
 //! [this answer on ServerFault](https://serverfault.com/a/906224/79617).
 //!
 use std::collections::HashMap;
+use std::time::Duration;
 
 use dbus::arg::RefArg;
 pub use dbus::strings::Path;
@@ -161,6 +162,7 @@ pub use session::EncryptionType;
 use session::Session;
 use ss::{SS_COLLECTION_LABEL, SS_DBUS_PATH};
 
+mod bus;
 mod collection;
 mod error;
 mod item;
@@ -203,7 +205,10 @@ impl SecretService {
     /// the user's response.  See [`connect_with_max_prompt_timeout`](SecretService::connect_with_max_prompt_timeout) if you want
     /// different behavior.
     pub fn connect(encryption: EncryptionType) -> Result<Self, Error> {
-        let connection = Connection::new_session()?;
+        Self::with_connection(Connection::new_session()?, encryption)
+    }
+
+    fn with_connection(connection: Connection, encryption: EncryptionType) -> Result<Self, Error> {
         let session = Session::new(new_proxy(&connection, SS_DBUS_PATH), encryption)?;
         Ok(SecretService {
             connection,
@@ -227,6 +232,45 @@ impl SecretService {
         let mut service = Self::connect(encryption)?;
         service.timeout = Some(seconds);
         Ok(service)
+    }
+
+    /// Connect to the DBus and return a new [SecretService] instance,
+    /// giving up if the session bus does not answer within `timeout`.
+    ///
+    /// This is [`connect`](SecretService::connect), except for how the
+    /// session bus connection is set up. `connect` waits as long as it
+    /// takes for the bus to authenticate the client and answer its `Hello`
+    /// call. That is forever if the bus socket accepts connections but
+    /// never answers, and while it waits libdbus holds a process-wide lock
+    /// that every other new bus connection in the process also needs.
+    ///
+    /// This function finds the session bus address the same way libdbus
+    /// does (`DBUS_SESSION_BUS_ADDRESS`, then the socket `$XDG_RUNTIME_DIR/bus`)
+    /// and does the authentication and the `Hello` call itself, without that
+    /// lock. If they are not done when `timeout` has passed, it returns
+    /// [Error::Dbus] with the name `org.freedesktop.DBus.Error.Timeout`. If the
+    /// bus closes the connection first, the name is
+    /// `org.freedesktop.DBus.Error.Disconnected`. (Closing the failed
+    /// connection takes the lock briefly, so it can still wait for another
+    /// thread that is stuck in [`connect`](SecretService::connect).)
+    ///
+    /// If the process is setuid, or neither of those gives an address (so
+    /// libdbus would use its built-in default, such as launchd on macOS),
+    /// this connects exactly as [`connect`](SecretService::connect) does,
+    /// with no time limit. It always does so on Unix systems other than
+    /// Linux, Android, Apple's and the BSDs, where it cannot tell whether
+    /// libdbus treats the process as setuid.
+    ///
+    /// The timeout does not cover opening the socket (a blocking `connect()`),
+    /// nor the `OpenSession` call to the Secret Service that follows, which has
+    /// the same 2 second limit as every other Secret Service call.
+    ///
+    /// Prompts block indefinitely, as with [`connect`](SecretService::connect).
+    pub fn connect_with_connection_timeout(
+        encryption: EncryptionType,
+        timeout: Duration,
+    ) -> Result<Self, Error> {
+        Self::with_connection(bus::session_connection(timeout)?, encryption)
     }
 
     /// Get the service proxy (internal)
@@ -344,6 +388,17 @@ mod test {
     #[test]
     fn should_create_secret_service() {
         SecretService::connect(EncryptionType::Plain).unwrap();
+    }
+
+    #[test]
+    fn should_create_secret_service_with_connection_timeout() {
+        let ss = SecretService::connect_with_connection_timeout(
+            EncryptionType::Plain,
+            Duration::from_secs(5),
+        )
+        .unwrap();
+        let collections = ss.get_all_collections().unwrap();
+        assert!(!collections.is_empty(), "no collections found");
     }
 
     #[test]

@@ -1,0 +1,7 @@
+# Setuid cannot be tested, and the non-unix stubs are not built on Linux.
+exclude_re = [
+    "is_setuid",
+    "current_uid",
+    "user_bus_address -> Option<String> with Some",
+    "wait_and_read_write -> Result",
+]
